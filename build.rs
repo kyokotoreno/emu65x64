@@ -1,4 +1,4 @@
-const CC_SOURCES: &str = "src/cc";
+const CC_SOURCES: &str = "src/cpp";
 
 fn main() {
     let mut build = cc::Build::new();

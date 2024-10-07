@@ -11,4 +11,5 @@ fn main() {
     emu65x64::set_pc(0);
     emu65x64::step();
     emu65x64::step();
+    emu65x64::step();
 }

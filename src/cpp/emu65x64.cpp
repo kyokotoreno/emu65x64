@@ -477,10 +477,10 @@ void emu65x64::dump(const char *mnem, Addr ea)
     // std::cout << toHex(sp.b, 2) << ']';
     std::cout << toHex(sp.q, 16);
     std::cout << " {";
-    std::cout << ' ' << toHex(getByte(sp.q + 1), 2);
-    std::cout << ' ' << toHex(getByte(sp.q + 2), 2);
-    std::cout << ' ' << toHex(getByte(sp.q + 3), 2);
-    std::cout << ' ' << toHex(getByte(sp.q + 4), 2);
+    std::cout << ' ' << toHex(getQword(sp.q + 1), 16);
+    std::cout << ' ' << toHex(getQword(sp.q + 9), 16);
+    std::cout << ' ' << toHex(getQword(sp.q + 17), 16);
+    std::cout << ' ' << toHex(getQword(sp.q + 25), 16);
     std::cout << " }";
     std::cout << " TP=" << toHex(tp.q, 16);
     std::cout << " DP=" << toHex(dp.q, 16);
