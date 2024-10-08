@@ -5,11 +5,17 @@ fn main() {
 
     ram[0] = 0x69;
     ram[1] = 1;
+    ram[11] = 0xDB;
+    ram[12] = 0xDB;
+    ram[13] = 0x40;
+    ram[14] = 0xDB;
+    ram[0x3fffffd8] = 13;
 
     emu65x64::set_memory_ram(0x3fff_ffff, 0x4000_0000, &mut ram, None);
     emu65x64::reset(true);
     emu65x64::set_pc(0);
-    emu65x64::step();
-    emu65x64::step();
-    emu65x64::step();
+
+    for _ in 0..6 {
+        emu65x64::step();
+    }
 }

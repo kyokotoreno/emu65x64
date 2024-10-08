@@ -51,3 +51,48 @@ void mem65x64::setMemory(Addr memMask, Addr ramSize, Byte *pRAM, const Byte *pRO
     mem65x64::pRAM = pRAM;
     mem65x64::pROM = pROM;
 }
+
+extern "C" {
+    // Internal fallbacks
+
+    unsigned char mem65x64_getByteF(unsigned long long addr)
+    {
+        return (mem65x64::Byte)mem65x64::getByteF((mem65x64::Addr)addr);
+    }
+
+    unsigned short mem65x64_getWordF(unsigned long long addr)
+    {
+        return (mem65x64::Word)mem65x64::getWordF((mem65x64::Addr)addr);
+    }
+
+    unsigned long mem65x64_getDwordF(unsigned long long addr)
+    {
+        return (mem65x64::Dword)mem65x64::getDwordF((mem65x64::Addr)addr);
+    }
+
+    unsigned long long mem65x64_getQwordF(unsigned long long addr)
+    {
+        return (mem65x64::Qword)mem65x64::getQwordF((mem65x64::Addr)addr);
+    }
+
+    void mem65x64_setByteF(unsigned long long addr, unsigned char data)
+    {
+        mem65x64::setByteF((mem65x64::Addr)addr, (mem65x64::Byte)data);
+    }
+
+    void mem65x64_setWordF(unsigned long long addr, unsigned short data)
+    {
+        mem65x64::setWordF((mem65x64::Addr)addr, (mem65x64::Word)data);
+    }
+
+    void mem65x64_setDwordF(unsigned long long addr, unsigned long data)
+    {
+        mem65x64::setDwordF((mem65x64::Addr)addr, (mem65x64::Dword)data);
+    }
+
+    void mem65x64_setQwordF(unsigned long long addr, unsigned long long data)
+    {
+        mem65x64::setQwordF((mem65x64::Addr)addr, (mem65x64::Qword)data);
+    }
+}
+

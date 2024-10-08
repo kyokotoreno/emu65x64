@@ -1,3 +1,6 @@
+#[cfg(feature = "bevy" )]
+pub mod prelude;
+
 #[link(name = "emu65x64")]
 extern "C" {
     fn emu65x64_setMemory(memMask: u64, ramSize: u64, pRom: *const u8);
@@ -33,6 +36,17 @@ extern "C" {
     fn emu65x64_set_y(value: u64);
     fn emu65x64_set_z(value: u64);
      */
+
+    // Memory access
+
+    fn mem65x64_getByteF(addr: u64) -> u8;
+    fn mem65x64_getWordF(addr: u64) -> u16;
+    fn mem65x64_getDwordF(addr: u64) -> u32;
+    fn mem65x64_getQwordF(addr: u64) -> u64;
+    fn mem65x64_setByteF(addr: u64, data: u8);
+    fn mem65x64_setWordF(addr: u64, data: u16);
+    fn mem65x64_setDwordF(addr: u64, data: u32);
+    fn mem65x64_setQwordF(addr: u64, data: u64);
 }
 
 pub fn set_memory(mem_mask: u64, ram_size: u64, rom: Option<&[u8]>) {
@@ -205,5 +219,118 @@ pub fn set_z(value: u64) {
 pub fn set_pc(value: u64) {
     unsafe {
         emu65x64_setPc(value)
+    }
+}
+
+// Memory access
+#[no_mangle]
+extern "C" fn read_byte(addr: u64) -> u8 {
+    unsafe {
+        #[cfg(feature = "bevy")]
+        {
+            prelude::RwMemory::read_byte(addr)
+        }
+        #[cfg(not(feature = "bevy"))]
+        {
+            mem65x64_getByteF(addr)
+        }
+    }
+}
+
+#[no_mangle]
+extern "C" fn read_word(addr: u64) -> u16 {
+    unsafe {
+        #[cfg(feature = "bevy")]
+        {
+            prelude::RwMemory::read_word(addr)
+        }
+        #[cfg(not(feature = "bevy"))]
+        {
+            mem65x64_getWordF(addr)
+        }
+    }
+}
+
+#[no_mangle]
+extern "C" fn read_dword(addr: u64) -> u32 {
+    unsafe {
+        #[cfg(feature = "bevy")]
+        {
+            prelude::RwMemory::read_dword(addr)
+        }
+        #[cfg(not(feature = "bevy"))]
+        {
+            mem65x64_getDwordF(addr)
+        }
+    }
+}
+
+#[no_mangle]
+extern "C" fn read_qword(addr: u64) -> u64 {
+    unsafe {
+        #[cfg(feature = "bevy")]
+        {
+            prelude::RwMemory::read_qword(addr)
+        }
+        #[cfg(not(feature = "bevy"))]
+        {
+            mem65x64_getQwordF(addr)
+        }
+    }
+}
+
+#[no_mangle]
+extern "C" fn write_byte(addr: u64, data: u8) {
+    unsafe {
+        #[cfg(feature = "bevy")]
+        {
+            prelude::RwMemory::write_byte(addr, data)
+        }
+        #[cfg(not(feature = "bevy"))]
+        {
+            mem65x64_setByteF(addr, data)
+        }
+    }
+}
+
+#[no_mangle]
+extern "C" fn write_word(addr: u64, data: u16) {
+    unsafe {
+        #[cfg(feature = "bevy")]
+        {
+            prelude::RwMemory::write_word(addr, data)
+        }
+        #[cfg(not(feature = "bevy"))]
+        {
+            mem65x64_setWordF(addr, data)
+        }
+    }
+}
+
+#[no_mangle]
+extern "C" fn write_dword(addr: u64, data: u32) {
+    unsafe {
+        #[cfg(feature = "bevy")]
+        {
+            prelude::RwMemory::write_dword(addr, data)
+        }
+        #[cfg(not(feature = "bevy"))]
+        {
+            mem65x64_setDwordF(addr, data)
+        }
+    }
+}
+
+#[no_mangle]
+extern "C" fn write_qword(addr: u64, data: u64) {
+    unsafe {
+        #[cfg(feature = "bevy")]
+        {
+            prelude::RwMemory::write_qword(addr, data)
+        }
+        #[cfg(not(feature = "bevy"))]
+        {
+            mem65x64_setQwordF(addr, data)
+        }
     }
 }

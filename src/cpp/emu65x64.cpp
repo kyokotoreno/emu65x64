@@ -63,9 +63,10 @@ void emu65x64::reset(bool trace)
     // dbr = 0x00;
     // dp.w = 0x0000;
     r = 0;
-    tp.b = 0;
+    dp.w = 0;
+    tp.w = 0x1000;
     sp.w = 0x100;
-    pc = getQword(0x3ffffff8);
+    pc = getQword(0x3ffffff0);
     p.b = 0x34;
 
     stopped = false;
@@ -81,7 +82,7 @@ void emu65x64::step()
 
     SHOWPC();
 
-    switch (getByte(join_w(pbr, pc++))) {
+    switch (getByte(pc++)) {
     case 0x00:  op_brk(am_immb());  break;
     case 0x01:  op_ora(am_dpix());  break;
     case 0x02:  op_cop(am_immb());  break;
@@ -429,6 +430,26 @@ void emu65x64::bytes(unsigned int count)
     std::cout << ' ';
 }
 
+void emu65x64::dump_reg(const char *name, emu65x64::REGS reg)
+{
+    if (reg.q > 0xffffffffffffff)
+        std::cout << name << toHex(reg.q, 16);
+    else if (reg.q > 0xffffffffffff)
+        std::cout << name << toHex(reg.q, 14);
+    else if (reg.q > 0xffffffffff)
+        std::cout << name << toHex(reg.q, 12);
+    else if (reg.q > 0xffffffff)
+        std::cout << name << toHex(reg.q, 10);
+    else if (reg.q > 0xffffff)
+        std::cout << name << toHex(reg.d, 8);
+    else if (reg.q > 0xffff)
+        std::cout << name << toHex(reg.d, 6);
+    else if (reg.q > 0xff)
+        std::cout << name << toHex(reg.w, 4);
+    else
+        std::cout << name << toHex(reg.b, 2);
+}
+
 // Display registers and top of stack
 void emu65x64::dump(const char *mnem, Addr ea)
 {
@@ -444,46 +465,55 @@ void emu65x64::dump(const char *mnem, Addr ea)
         (p.f_i ? 'I' : '.') <<
         (p.f_z ? 'Z' : '.') <<
         (p.f_c ? 'C' : '.');
-    std::cout << " A=";
+    //std::cout << " A=";
     // if (e || p.f_m)
     //     std::cout << toHex(hi_b(a.w), 2) << '[';
     // else
     //     std::cout << '[' << toHex(hi_b(a.w), 2);
     // std::cout << toHex(a.b, 2) << ']';
-    std::cout << toHex(a.q, 16);
-    std::cout << " B=" << toHex(b.q, 16);
-    std::cout << " C=" << toHex(c.q, 16);
-    std::cout << " X=";
+    //std::cout << toHex(a.q, 16);
+    //std::cout << "," << toHex(b.q, 16);
+    //std::cout << "," << toHex(c.q, 16);
+    dump_reg(" A=", a);
+    dump_reg(" B=", b);
+    dump_reg(" C=", c);
+    //std::cout << " X=";
     // if (e || p.f_x)
     //     std::cout << toHex(hi_b(x.w), 2) << '[';
     // else
     //     std::cout << '[' << toHex(hi_b(x.w), 2);
     // std::cout << toHex(x.b, 2) << ']';
-    std::cout << toHex(x.q, 16);
-    std::cout << " Y=";
+    //std::cout << toHex(x.q, 16);
+    //std::cout << ",";
     // if (e || p.f_x)
     //     std::cout << toHex(hi_b(y.w), 2) << '[';
     // else
     //     std::cout << '[' << toHex(hi_b(y.w), 2);
     // std::cout << toHex(y.b, 2) << ']';
-    std::cout << toHex(y.q, 16);
-    std::cout << " Z=" << toHex(z.q, 16);
+    //std::cout << toHex(y.q, 16);
+    //std::cout << "," << toHex(z.q, 16);
+    dump_reg(" X=", x);
+    dump_reg(" Y=", y);
+    dump_reg(" Z=", z);
     // std::cout << " DP=" << toHex(dp.w, 4);
-    std::cout << " SP=";
+    //std::cout << " SP=";
     // if (e)
     //     std::cout << toHex(hi_b(sp.w), 2) << '[';
     // else
     //     std::cout << '[' << toHex(hi_b(sp.w), 2);
     // std::cout << toHex(sp.b, 2) << ']';
-    std::cout << toHex(sp.q, 16);
+    //std::cout << toHex(sp.q, 16);
+    dump_reg(" DP=", dp);
+    dump_reg(" TP=", tp);
+    dump_reg(" SP=", sp);
     std::cout << " {";
     std::cout << ' ' << toHex(getQword(sp.q + 1), 16);
     std::cout << ' ' << toHex(getQword(sp.q + 9), 16);
     std::cout << ' ' << toHex(getQword(sp.q + 17), 16);
     std::cout << ' ' << toHex(getQword(sp.q + 25), 16);
     std::cout << " }";
-    std::cout << " TP=" << toHex(tp.q, 16);
-    std::cout << " DP=" << toHex(dp.q, 16);
+    //std::cout << " TP=" << toHex(tp.q, 16);
+    //std::cout << " DP=" << toHex(dp.q, 16);
     // std::cout << " DBR=" << toHex(dbr, 2);
     std::cout << std::endl;
 }

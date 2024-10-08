@@ -19,6 +19,19 @@
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
 
+/**
+ * 64-bit long vector locations
+ *
+ * irq          0x3ffffff8
+ * reset        0x3ffffff0
+ * nmi          0x3fffffe8
+ * abort        0x3fffffe0
+ * brk          0x3fffffd8
+ * cop          0x3fffffd0
+ * (reserved)   0x3fffffc8
+ * (reserved)   0x3fffffc0
+ */
+
 #ifndef EMU65X64_H
 #define EMU65X64_H
 
@@ -108,17 +121,15 @@ public:
 
     static void show();
     static void bytes(unsigned int);
+    static void dump_reg(const char *, REGS);
     static void dump(const char *, Addr);
 
     // Push a byte on the stack
     inline static void pushByte(Byte value)
     {
-        setByte(sp.w, value);
+        setByte(sp.q, value);
 
-        if (e)
-            --sp.b;
-        else
-            --sp.w;
+        --sp.q;
     }
 
     // Push a word on the stack
@@ -145,12 +156,9 @@ public:
     // Pull a byte from the stack
     inline static Byte pullByte()
     {
-        if (e)
-            ++sp.b;
-        else
-            ++sp.w;
+        ++sp.q;
 
-        return (getByte(sp.w));
+        return (getByte(sp.q));
     }
 
     // Pull a word from the stack
@@ -184,7 +192,7 @@ private:
     // Absolute - a
     inline static Addr am_absl()
     {
-        register Addr   ea = getQword(pc);
+        Addr ea = getQword(pc);
 
         BYTES(8);
         cycles += 2; // TODO: fix cycles
@@ -968,6 +976,7 @@ private:
     {
         TRACE("BRK");
 
+        /*
         if (e) {
             pushWord(pc);
             pushByte(p.b | 0x10);
@@ -991,6 +1000,16 @@ private:
             pc = getWord(0xffe6);
             cycles += 8;
         }
+        */
+
+        pushQword(pc);
+        pushByte(p.b);
+
+        p.f_i = 1;
+        p.f_d = 0;
+
+        pc = getQword(0x3fffffd8);
+        cycles += 8; // TODO: fix cycles
     }
 
     inline static void op_brl(Addr ea)
@@ -1284,8 +1303,7 @@ private:
     {
         TRACE("JMP");
 
-        pbr = lo_b(ea >> 16);
-        pc = (Word)ea;
+        pc = (Qword)ea;
         cycles += 1;
     }
 
@@ -1293,22 +1311,20 @@ private:
     {
         TRACE("JSL");
 
-        pushByte(pbr);
-        pushWord(pc - 1);
+        pushQword(pc - 1);
 
-        pbr = lo_b(ea >> 16);
-        pc = (Word)ea;
-        cycles += 5;
+        pc = (Qword)ea;
+        cycles += 5; // TODO: fix cycles
     }
 
     inline static void op_jsr(Addr ea)
     {
         TRACE("JSR");
 
-        pushWord(pc - 1);
+        pushQword(pc - 1);
 
-        pc = (Word)ea;
-        cycles += 4;
+        pc = (Qword)ea;
+        cycles += 4; // TODO: fix cycles
     }
 
     inline static void op_lda(Addr ea)
@@ -1716,7 +1732,7 @@ private:
     inline static void op_rti(Addr ea)
     {
         TRACE("RTI");
-
+        /*
         if (e) {
             p.b = pullByte();
             pc = pullWord();
@@ -1728,6 +1744,11 @@ private:
             pbr = pullByte();
             cycles += 7;
         }
+        */
+
+        p.b = pullByte();
+        pc = pullQword();
+        cycles += 7; // TODO: fix cycles
         p.f_i = 0;
     }
 
@@ -1744,8 +1765,8 @@ private:
     {
         TRACE("RTS");
 
-        pc = pullWord() + 1;
-        cycles += 6;
+        pc = pullQword() + 1;
+        cycles += 6; // TODO: fix cycles
     }
 
     inline static void op_sbc(Addr ea)
@@ -1846,7 +1867,7 @@ private:
         else
             interrupted = false;
 
-        cycles += 3;
+        cycles += 3; // TODO: fix cycles
     }
 
     inline static void op_stx(Addr ea)
